@@ -29,7 +29,7 @@ private:
 
 public:
   // 放弃实现精准语义的Iterator和ConstIterator
-  using Iterator = typename RBTree::ConstIterator;
+  using Iterator = typename RBTree::Iterator;
   using ConstIterator = typename RBTree::ConstIterator;
   Map() = default;
   explicit Map(Compare comp) : tree_(comp) {}

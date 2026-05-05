@@ -197,6 +197,114 @@ static void map_iterator_impl() {
   auto prev2 = it3--;
   CHECK_EQ(30, prev2->first);
   CHECK_EQ(20, it3->first);
+
+  // 5. Iterator 修改 value（非 const 版本的关键能力）
+  mp[10] = 100;
+  mp[20] = 200;
+  auto it4 = mp.begin();
+  it4->second = 999;
+  CHECK_EQ(999, mp[10]);
+  // 验证不会意外修改 key（key 是 const 的）
+  CHECK_EQ(10, mp.begin()->first);
+
+  // 6. 通过 Iterator 批量修改所有元素
+  for (auto iter = mp.begin(); iter != mp.end(); ++iter) {
+    iter->second *= 2;
+  }
+  CHECK_EQ(1998, mp[10]);
+  CHECK_EQ(400, mp[20]);
+  CHECK_EQ(600, mp[30]);
+
+  // 7. 通过 operator* 修改 value
+  auto it5 = mp.begin();
+  (*it5).second = 42;
+  CHECK_EQ(42, mp[10]);
+
+  // 8. Iterator 与 ConstIterator 的转换和比较
+  {
+    auto it6 = mp.begin();
+    // const 引用获得 ConstIterator
+    const auto& cmp_ref = mp;
+    auto cit6 = cmp_ref.begin();
+    CHECK_EQ(true, it6 == cit6);
+    CHECK_EQ(false, it6 != cit6);
+
+    // Iterator 可隐式转换为 ConstIterator
+    Map<int, int>::ConstIterator cit_from_it = it6;
+    CHECK_EQ(true, it6 == cit_from_it);
+  }
+
+  // 9. 通过 range-based for 修改所有元素
+  for (auto& p : mp) {
+    p.second = 42;
+  }
+  for (const auto& p : mp) {
+    CHECK_EQ(42, p.second);
+  }
+
+  // 10. 单元素迭代器边界
+  {
+    Map<int, int> single;
+    single[1] = 100;
+    auto sit = single.begin();
+    CHECK_EQ(false, sit == single.end());
+    CHECK_EQ(1, sit->first);
+    ++sit;
+    CHECK_EQ(true, sit == single.end());
+    --sit;
+    CHECK_EQ(1, sit->first);
+    CHECK_EQ(100, sit->second);
+
+    // 修改单元素
+    sit->second = 200;
+    CHECK_EQ(200, single[1]);
+  }
+
+  // 11. 空 map 迭代器
+  {
+    Map<int, int> empty;
+    CHECK_EQ(empty.begin(), empty.end());
+  }
+
+  // 12. Iterator 隐式转换为 ConstIterator
+  {
+    Map<int, int> mp2;
+    mp2[1] = 10;
+    Map<int, int>::Iterator it = mp2.begin();
+    Map<int, int>::ConstIterator cit = it;  // 隐式转换
+    CHECK_EQ(it, cit);
+    CHECK_EQ(10, cit->second);
+  }
+
+  // 13. 混合前进后退
+  {
+    Map<int, int> mp2;
+    mp2[10] = 100;
+    mp2[20] = 200;
+    mp2[30] = 300;
+    auto it = mp2.begin();
+    ++it;           // -> 20
+    --it;           // -> 10
+    CHECK_EQ(10, it->first);
+    ++it;           // -> 20
+    ++it;           // -> 30
+    --it;           // -> 20
+    CHECK_EQ(20, it->first);
+  }
+
+  // 14. 后置 ++ 和 -- 返回的值可解引用
+  {
+    Map<int, int> mp2;
+    mp2[1] = 10;
+    mp2[2] = 20;
+    auto it = mp2.begin();
+    auto next = it++;
+    CHECK_EQ(10, next->second);
+    CHECK_EQ(20, it->second);
+    auto prev = it--;
+    CHECK_EQ(20, prev->second);
+    CHECK_EQ(10, it->second);
+  }
 }
 
 static void map_lookup_impl() {
@@ -333,6 +441,13 @@ static void map_const_impl() {
   // 7. at const
   CHECK_EQ(200, cmp.at(20));
   EXPECT_THROW(cmp.at(99), std::out_of_range);
+
+  // 8. 范围 for（const map 应遍历所有元素）
+  int sum = 0;
+  for (const auto& p : cmp) {
+    sum += p.second;
+  }
+  CHECK_EQ(600, sum);
 }
 
 static void map_string_impl() {
