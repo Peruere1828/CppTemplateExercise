@@ -39,7 +39,7 @@ public:
   // clang-format off
   auto begin() noexcept -> Iterator { return Iterator(tree_.begin()); }
   auto begin() const noexcept -> ConstIterator { return ConstIterator(tree_.begin()); }
-  auto end() -> Iterator { return Iterator(tree_.end()); }
+  auto end() noexcept -> Iterator { return Iterator(tree_.end()); }
   auto end() const noexcept -> ConstIterator { return ConstIterator(tree_.end()); }
   [[nodiscard]] auto size() const noexcept -> size_t { return tree_.size(); }
   [[nodiscard]] auto empty() const noexcept -> bool { return tree_.empty(); }
@@ -111,7 +111,7 @@ public:
   // clang-format off
   auto begin() noexcept -> Iterator { return Iterator(tree_.begin()); }
   auto begin() const noexcept -> ConstIterator { return ConstIterator(tree_.begin()); }
-  auto end() -> Iterator { return Iterator(tree_.end()); }
+  auto end() noexcept -> Iterator { return Iterator(tree_.end()); }
   auto end() const noexcept -> ConstIterator { return ConstIterator(tree_.end()); }
   [[nodiscard]] auto size() const noexcept -> size_t { return tree_.size(); }
   [[nodiscard]] auto empty() const noexcept -> bool { return tree_.empty(); }
