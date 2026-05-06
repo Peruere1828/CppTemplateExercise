@@ -225,10 +225,7 @@ public:
     }
     NodePtr node = static_cast<NodePtr>(iter.node_);
     Iterator result = iter;
-    bool has_two_children = (node->left_ != nullptr && node->right_ != nullptr);
-    if (!has_two_children) {
-      ++result;
-    }
+    ++result;
     eraseImpl(node);
     return result;
   }
@@ -373,8 +370,8 @@ private:
     }
     root()->color_ = NodeColor::BLACK;
   }
-  auto insertImpl(NodePtr node, NodePtr parent, bool whson)
-      -> std::pair<Iterator, bool> {
+  auto insertImpl(NodePtr node, NodePtr parent,
+                  bool whson) -> std::pair<Iterator, bool> {
     node->parent_ = static_cast<BasePtr>(parent);
     if (parent == header_) {
       root() = static_cast<BasePtr>(node);
@@ -468,14 +465,39 @@ private:
     }
   }
   void eraseImpl(NodePtr node) {
+    if (node == leftmost()) {
+      leftmost() = node->right_
+                       ? static_cast<BasePtr>(RBNodeBase::minimum(node->right_))
+                       : node->parent_;
+    }
+    if (node == rightmost()) {
+      rightmost() = node->left_
+                        ? static_cast<BasePtr>(RBNodeBase::maximum(node->left_))
+                        : node->parent_;
+    }
+
     NodePtr fin_erase = node;  // 最终删除的节点
+    NodePtr son = nullptr;
     if (node->left_ && node->right_) {
+      // node 有两个孩子，找到 node 的后继节点 fin_erase，后继节点没有左孩子
       fin_erase =
           static_cast<NodePtr>(RBNodeBase::suffix(static_cast<BasePtr>(node)));
+      son = static_cast<NodePtr>(fin_erase->right_);
+    } else {
+      // 此时 fin_erase=node 只有一个孩子
+      son = static_cast<NodePtr>(node->left_ ? node->left_ : node->right_);
     }
-    // 此时 fin_erase 只有一个孩子
-    NodePtr son = fin_erase->left_ ? static_cast<NodePtr>(fin_erase->left_)
-                                   : static_cast<NodePtr>(fin_erase->right_);
+
+    // 由于 val 不一定是 movable 的，所以需要让 fin_erase 有 node 位置的物理结构
+
+    NodeColor removed_color = fin_erase->color_;
+    BasePtr fin_parent = fin_erase->parent_;
+    // 如果 fin_erase 的父亲刚好是 node
+    // 由于 node 马上要被 fin_erase 顶替，那么原来 fin_erase 所在位置的父亲
+    // 实际上就变成了 fin_erase 自己。我们必须修正这个指针供 eraseFix 使用
+    if (fin_erase != node && fin_parent == node) {
+      fin_parent = fin_erase;
+    }
 
     if (son) {
       son->parent_ = fin_erase->parent_;
@@ -488,21 +510,32 @@ private:
       fin_erase->parent_->right_ = static_cast<BasePtr>(son);
     }
 
-    if (fin_erase == leftmost()) {
-      leftmost() = fin_erase->right_ ? RBNodeBase::minimum(fin_erase->right_)
-                                     : fin_erase->parent_;
-    }
-    if (fin_erase == rightmost()) {
-      rightmost() = fin_erase->left_ ? RBNodeBase::maximum(fin_erase->left_)
-                                     : fin_erase->parent_;
-    }
-    if (fin_erase->color_ == NodeColor::BLACK) {
-      eraseFix(static_cast<BasePtr>(son), fin_erase->parent_);
-    }
     if (fin_erase != node) {
-      node->val_ = std::move(fin_erase->val_);
+      fin_erase->parent_ = node->parent_;
+      if (node == root()) {
+        root() = fin_erase;
+      } else if (node == node->parent_->left_) {
+        node->parent_->left_ = fin_erase;
+      } else {
+        node->parent_->right_ = fin_erase;
+      }
+
+      fin_erase->left_ = node->left_;
+      fin_erase->left_->parent_ = fin_erase;
+
+      fin_erase->right_ = node->right_;
+      if (fin_erase->right_) {
+        fin_erase->right_->parent_ = fin_erase;
+      }
+
+      fin_erase->color_ = node->color_;
     }
-    delete fin_erase;
+
+    if (removed_color == NodeColor::BLACK) {
+      eraseFix(static_cast<BasePtr>(son), fin_parent);
+    }
+
+    delete node;
     size_--;
   }
 
