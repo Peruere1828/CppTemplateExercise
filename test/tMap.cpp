@@ -283,12 +283,12 @@ static void map_iterator_impl() {
     mp2[20] = 200;
     mp2[30] = 300;
     auto it = mp2.begin();
-    ++it;           // -> 20
-    --it;           // -> 10
+    ++it;  // -> 20
+    --it;  // -> 10
     CHECK_EQ(10, it->first);
-    ++it;           // -> 20
-    ++it;           // -> 30
-    --it;           // -> 20
+    ++it;  // -> 20
+    ++it;  // -> 30
+    --it;  // -> 20
     CHECK_EQ(20, it->first);
   }
 
@@ -363,7 +363,7 @@ struct MoveOnlyValue {
   MoveOnlyValue(const MoveOnlyValue&) = delete;
   MoveOnlyValue& operator=(const MoveOnlyValue&) = delete;
 };
-}
+}  // namespace
 
 static void map_move_only_impl() {
   Map<int, MoveOnlyValue> mp;

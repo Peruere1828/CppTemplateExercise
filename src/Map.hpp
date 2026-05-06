@@ -55,8 +55,11 @@ public:
   // clang-format on
 
   auto operator[](const Key& key) -> T& {
-    auto tmp = tree_.insertUnique(ValueType(key, T()));
-    return tmp.first->second;
+    auto iter = tree_.find(key);
+    if (iter != tree_.end()) {
+      return iter->second;
+    }
+    return tree_.insertUnique(ValueType(key, T())).first->second;
   }
   auto at(const Key& key) -> T& {
     auto iter = tree_.find(key);
