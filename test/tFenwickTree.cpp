@@ -1,9 +1,11 @@
+#include <gtest/gtest.h>
+
 #include <stdexcept>
 #include <vector>
 
 #include "FenwickTree.hpp"
 #include "common.h"
-#include "test.h"
+#include "test_utils.hpp"
 
 namespace TestFenwickTree {
 const int mod = 1e9 + 7;
@@ -15,7 +17,7 @@ using namespace TestFenwickTree;
 
 using namespace mystd::fenwick_tree;
 
-void test_FenwickTree() {
+TEST(FenwickTree, Default) {
   RandomGenerator gen;
   std::vector<int> arr;
   const int arr_len = 10000;
@@ -47,7 +49,7 @@ void test_FenwickTree() {
         for (int i = 0; i <= l; i++) {
           ans2 = add(ans2, ref[i]);
         }
-        CHECK_EQ(ans2, ans1);
+        EXPECT_EQ(ans2, ans1);
         break;
       }
       case 2: {
@@ -56,7 +58,7 @@ void test_FenwickTree() {
         for (int i = l; i <= r; i++) {
           ans2 = add(ans2, ref[i]);
         }
-        CHECK_EQ(ans2, ans1);
+        EXPECT_EQ(ans2, ans1);
         break;
       }
       default:
@@ -64,6 +66,3 @@ void test_FenwickTree() {
     }
   }
 }
-
-// register tests
-MAKE_TEST(FenwickTree, Default) { test_FenwickTree(); }

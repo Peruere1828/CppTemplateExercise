@@ -1,13 +1,15 @@
+#include <gtest/gtest.h>
+
 #include <stack>
 #include <stdexcept>
 
 #include "Stack.hpp"
-#include "test.h"
+#include "test_utils.hpp"
 
 using mystd::stack::Stack;
 using std::stack;
 
-void test_Stack() {
+TEST(Stack, Default) {
   RandomGenerator gen;
   const int query_times = 100000;
   const int num_range = 100000;
@@ -16,23 +18,20 @@ void test_Stack() {
   for (int t = 0; t < query_times; t++) {
     int opt = gen.uniform_int(0, 4);
     switch (opt) {
-      case 0: {
-        CHECK_EQ(ref.empty(), stk.empty());
+      case 0:
+        EXPECT_EQ(ref.empty(), stk.empty());
         break;
-      }
-      case 1: {
-        CHECK_EQ(ref.size(), stk.size());
+      case 1:
+        EXPECT_EQ(ref.size(), stk.size());
         break;
-      }
-      case 2: {
+      case 2:
         if (stk.empty()) {
           EXPECT_THROW(stk.top(), std::out_of_range);
         } else {
-          CHECK_EQ(ref.top(), stk.top());
+          EXPECT_EQ(ref.top(), stk.top());
         }
         break;
-      }
-      case 3: {
+      case 3:
         if (stk.empty()) {
           EXPECT_THROW(stk.pop(), std::out_of_range);
         } else {
@@ -40,7 +39,6 @@ void test_Stack() {
           stk.pop();
         }
         break;
-      }
       case 4: {
         int val = gen.uniform_int(0, num_range);
         ref.push(val);
@@ -52,6 +50,3 @@ void test_Stack() {
     }
   }
 }
-
-// register tests
-MAKE_TEST(Stack, Default) { test_Stack(); }

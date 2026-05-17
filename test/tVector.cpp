@@ -1,9 +1,9 @@
-#include <cstdlib>
-#include <ctime>
+#include <gtest/gtest.h>
+
 #include <vector>
 
 #include "Vector.hpp"
-#include "test.h"
+#include "test_utils.hpp"
 
 using namespace mystd::vector;
 
@@ -22,13 +22,13 @@ using namespace TestVector;
 
 template <typename T>
 static void full_compare(const Vector<T> &v, const std::vector<T> &ref) {
-  CHECK_EQ(ref.size(), v.size());
+  ASSERT_EQ(ref.size(), v.size());
   for (size_t i = 0; i < ref.size(); ++i) {
-    CHECK_EQ(ref[i], v[i]);
+    EXPECT_EQ(ref[i], v[i]);
   }
 }
 
-static void rand_test_int() {
+TEST(Vector, RandomInt) {
   Vector<int> v;
   std::vector<int> ref;
   const int OPS = (256 * 2048);
@@ -37,23 +37,23 @@ static void rand_test_int() {
 
   for (int i = 0; i < OPS; ++i) {
     int op = gen.uniform_int(0, 7);
-    if (op == 0) {  // push_back
+    if (op == 0) {
       int x = gen.uniform_int(0, MAX_VAL);
       v.pushBack(x);
       ref.push_back(x);
-    } else if (op == 1) {  // pop_back
+    } else if (op == 1) {
       if (ref.empty()) {
         EXPECT_THROW(v.popBack(), std::out_of_range);
       } else {
         v.popBack();
         ref.pop_back();
       }
-    } else if (op == 2) {  // insert single
+    } else if (op == 2) {
       size_t pos = gen.uniform_int(0ul, ref.size());
       int x = gen.uniform_int(0, MAX_VAL);
       v.insert(v.begin() + pos, x);
       ref.insert(ref.begin() + pos, x);
-    } else if (op == 3) {  // erase
+    } else if (op == 3) {
       if (ref.empty()) {
         EXPECT_THROW(v.erase(v.begin()), std::out_of_range);
       } else {
@@ -61,37 +61,37 @@ static void rand_test_int() {
         v.erase(v.begin() + pos);
         ref.erase(ref.begin() + pos);
       }
-    } else if (op == 4) {  // resize
+    } else if (op == 4) {
       size_t new_size = gen.uniform_int(0, 200);
       v.resize(new_size);
       ref.resize(new_size);
-    } else if (op == 5) {  // reserve
+    } else if (op == 5) {
       size_t cap = gen.uniform_int(0, 500);
       v.reserve(cap);
       ref.reserve(cap);
-    } else if (op == 6) {  // access checks
+    } else if (op == 6) {
       if (ref.empty()) {
         EXPECT_THROW(v.at(0), std::out_of_range);
       } else {
         size_t pos = gen.uniform_int(0ul, ref.size() - 1);
-        CHECK_EQ(ref[pos], v[pos]);
-        CHECK_EQ(ref[pos], v.at(pos));
-        CHECK_EQ(ref.front(), v.front());
-        CHECK_EQ(ref.back(), v.back());
+        EXPECT_EQ(ref[pos], v[pos]);
+        EXPECT_EQ(ref[pos], v.at(pos));
+        EXPECT_EQ(ref.front(), v.front());
+        EXPECT_EQ(ref.back(), v.back());
       }
-    } else {  // clear
+    } else {
       v.clear();
       ref.clear();
     }
 
-    if ((i & 0xFF) == 0) {  // 每 256 次做一次完整对比
+    if ((i & 0xFF) == 0) {
       full_compare<int>(v, ref);
     }
   }
   full_compare<int>(v, ref);
 }
 
-static void test_emplace_and_nontivial() {
+TEST(Vector, EmplaceNonTrivial) {
   Vector<Tmp> v;
   std::vector<Tmp> ref;
   const int OPS = (256 * 2048);
@@ -99,12 +99,12 @@ static void test_emplace_and_nontivial() {
 
   for (int i = 0; i < OPS; ++i) {
     int op = gen.uniform_int(0, 4);
-    if (op == 0) {  // emplace_back
+    if (op == 0) {
       int a = gen.uniform_int(0, 999);
       int b = gen.uniform_int(0, 999);
       v.emplaceBack(a, b);
       ref.emplace_back(a, b);
-    } else if (op == 1) {  // emplace at front
+    } else if (op == 1) {
       int a = gen.uniform_int(0, 999);
       int b = gen.uniform_int(0, 999);
       if (ref.empty()) {
@@ -114,18 +114,18 @@ static void test_emplace_and_nontivial() {
         v.emplace(v.begin(), a, b);
         ref.insert(ref.begin(), Tmp(a, b));
       }
-    } else if (op == 2) {  // pop_back
+    } else if (op == 2) {
       if (ref.empty()) {
         EXPECT_THROW(v.popBack(), std::out_of_range);
       } else {
         v.popBack();
         ref.pop_back();
       }
-    } else if (op == 3) {  // resize
+    } else if (op == 3) {
       size_t new_size = gen.uniform_int(0, 100);
       v.resize(new_size);
       ref.resize(new_size);
-    } else {  // clear
+    } else {
       v.clear();
       ref.clear();
     }
@@ -136,11 +136,3 @@ static void test_emplace_and_nontivial() {
   }
   full_compare<Tmp>(v, ref);
 }
-
-void test_Vector() {
-  rand_test_int();
-  test_emplace_and_nontivial();
-}
-
-// register tests
-MAKE_TEST(Vector, Default) { test_Vector(); }
