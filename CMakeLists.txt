@@ -10,20 +10,27 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -O0")
 # Release 模式：二级优化
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
-set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
-file(GLOB_RECURSE DS_HEADERS "${SRC_DIR}/*.hpp" "${SRC_DIR}/common.h" "${SRC_DIR}/test.h" "${TEST_DIR}/testcase.h")
-set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
-file(GLOB TEST_SOURCES "${TEST_DIR}" "${TEST_DIR}/t*.cpp")
+# --- Fetch Google Test ---
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v1.15.2
+)
+FetchContent_MakeAvailable(googletest)
 
-set(MAIN_TEST "${CMAKE_SOURCE_DIR}/test/main.cpp")
+set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+file(GLOB_RECURSE DS_HEADERS "${SRC_DIR}/*.hpp" "${SRC_DIR}/common.h")
+set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
+file(GLOB TEST_SOURCES "${TEST_DIR}/t*.cpp")
 
 add_executable(mytest
-    ${MAIN_TEST}
     ${TEST_SOURCES}
     ${DS_HEADERS}
 )
 
-target_include_directories(mytest PUBLIC ${SRC_DIR})
+target_include_directories(mytest PUBLIC ${SRC_DIR} ${TEST_DIR})
+target_link_libraries(mytest PRIVATE gtest_main)
 
-# enable_testing()
-# add_test(NAME all_tests COMMAND mytest)
+enable_testing()
+add_test(NAME mytest COMMAND mytest)

@@ -1,12 +1,12 @@
+#include <gtest/gtest.h>
+
 #include <vector>
 
 #include "SegmentTree.hpp"
-#include "test.h"
+#include "test_utils.hpp"
 
 namespace TestSegmentTree {
 const int mod = 1e9 + 7;
-// 区间修改 x <- x * a + b、区间求和，单点赋值、修改、查询，答案对 mod 取模
-// 参考：https://atcoder.jp/contests/practice2/editorial/100
 struct node {
   long long a;
   int size;
@@ -29,7 +29,7 @@ using namespace TestSegmentTree;
 
 using namespace mystd::segment_tree;
 
-void test_SegmentTree() {
+TEST(SegmentTree, Default) {
   RandomGenerator gen;
   std::vector<node> arr;
   const int arr_len = 10000;
@@ -39,7 +39,7 @@ void test_SegmentTree() {
     arr.push_back(node{gen.uniform_int(0, num_range), 1});
   }
   SegmentTree<node, op, e, func, mapping, composition, id> seg(arr);
-  std::vector<node> ref = arr;  // 用暴力算法作为ref对比
+  std::vector<node> ref = arr;
   for (int i = 0; i < query_times; i++) {
     int opt = gen.uniform_int(0, 4);
     int l = gen.uniform_int(0, arr_len - 1);
@@ -66,12 +66,12 @@ void test_SegmentTree() {
         for (int j = l; j <= r; j++) {
           ans2 = op(ans2, ref[j]);
         }
-        CHECK_EQ(ans2.a, ans1.a);
+        EXPECT_EQ(ans2.a, ans1.a);
       }
       case 3: {
         node ans1 = seg.query(l);
         node ans2 = ref[l];
-        CHECK_EQ(ans2.a, ans1.a);
+        EXPECT_EQ(ans2.a, ans1.a);
       }
       case 4: {
         node val{gen.uniform_int(0, num_range), 1};
@@ -84,6 +84,3 @@ void test_SegmentTree() {
     }
   }
 }
-
-// register tests
-MAKE_TEST(SegmentTree, Default) { test_SegmentTree(); }

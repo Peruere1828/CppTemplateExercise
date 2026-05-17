@@ -30,7 +30,7 @@ jobs:
     - name: Run tests
       run: |
         if [ -f build/mytest ]; then
-          ./build/mytest
+          ./build/mytest --gtest_print_time=1
         else
           echo "No test binary found, skipping tests."
         fi
