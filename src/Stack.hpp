@@ -19,6 +19,12 @@ public:
   [[nodiscard]] auto empty() const -> bool { return data_.empty(); }
   [[nodiscard]] auto size() const -> size_t { return data_.size(); }
 
+  auto top() -> T & {
+    if (empty()) {
+      throw std::out_of_range("Stack::top on empty stack");
+    }
+    return data_.back();
+  }
   auto top() const -> const T & {
     if (empty()) {
       throw std::out_of_range("Stack::top on empty stack");
@@ -31,11 +37,25 @@ public:
     data_.pushBack(std::forward<U>(val));
   }
 
+  template <typename... Args>
+  auto emplace(Args &&...args) -> T & {
+    return data_.emplaceBack(std::forward<Args>(args)...);
+  }
+
   void pop() {
     if (empty()) {
       throw std::out_of_range("Stack::pop on empty stack");
     }
     data_.popBack();
+  }
+
+  void swap(Stack &ano) noexcept { data_.swap(ano.data_); }
+
+  auto operator==(const Stack &ano) const -> bool {
+    return data_ == ano.data_;
+  }
+  auto operator!=(const Stack &ano) const -> bool {
+    return data_ != ano.data_;
   }
 };
 }  // namespace mystd::stack
