@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstring>
 #include <initializer_list>
-#include <iterator>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -317,18 +316,6 @@ public:
   auto cbegin() const -> const T * { return data_; }
   auto end() -> T * { return data_ + size_; }
   auto cend() const -> const T * { return data_ + size_; }
-  auto rbegin() -> std::reverse_iterator<T *> {
-    return std::reverse_iterator<T *>(end());
-  }
-  auto crbegin() const -> std::reverse_iterator<const T *> {
-    return std::reverse_iterator<const T *>(cend());
-  }
-  auto rend() -> std::reverse_iterator<T *> {
-    return std::reverse_iterator<T *>(begin());
-  }
-  auto crend() const -> std::reverse_iterator<const T *> {
-    return std::reverse_iterator<const T *>(cbegin());
-  }
 
   [[nodiscard]] auto empty() const noexcept -> bool { return size_ == 0; }
   [[nodiscard]] auto size() const noexcept -> size_t { return size_; }

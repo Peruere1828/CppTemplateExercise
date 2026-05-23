@@ -164,30 +164,6 @@ TEST(Vector, AssignInitializerListEmpty) {
   EXPECT_TRUE(v.empty());
 }
 
-TEST(Vector, ReverseIterator) {
-  Vector<int> v{1, 2, 3, 4, 5};
-  std::vector<int> result;
-  for (auto it = v.rbegin(); it != v.rend(); ++it) {
-    result.push_back(*it);
-  }
-  std::vector<int> expected{5, 4, 3, 2, 1};
-  EXPECT_EQ(result, expected);
-}
-
-TEST(Vector, ConstReverseIterator) {
-  const Vector<int> v{1, 2, 3};
-  std::vector<int> result;
-  for (auto it = v.crbegin(); it != v.crend(); ++it) {
-    result.push_back(*it);
-  }
-  std::vector<int> expected{3, 2, 1};
-  EXPECT_EQ(result, expected);
-}
-
-TEST(Vector, ReverseIteratorEmpty) {
-  Vector<int> v;
-  EXPECT_EQ(v.rbegin(), v.rend());
-}
 
 TEST(Vector, ResizeWithValue) {
   Vector<int> v{1, 2, 3};
