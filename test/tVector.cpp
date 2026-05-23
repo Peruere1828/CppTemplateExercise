@@ -164,7 +164,6 @@ TEST(Vector, AssignInitializerListEmpty) {
   EXPECT_TRUE(v.empty());
 }
 
-
 TEST(Vector, ResizeWithValue) {
   Vector<int> v{1, 2, 3};
   v.resize(5, 42);

@@ -51,12 +51,8 @@ public:
 
   void swap(Stack &ano) noexcept { data_.swap(ano.data_); }
 
-  auto operator==(const Stack &ano) const -> bool {
-    return data_ == ano.data_;
-  }
-  auto operator!=(const Stack &ano) const -> bool {
-    return data_ != ano.data_;
-  }
+  auto operator==(const Stack &ano) const -> bool { return data_ == ano.data_; }
+  auto operator!=(const Stack &ano) const -> bool { return data_ != ano.data_; }
 };
 }  // namespace mystd::stack
 #endif
