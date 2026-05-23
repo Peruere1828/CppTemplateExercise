@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstring>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -109,6 +110,29 @@ public:
     return *this;
   }
 
+  void assign(size_t count, const T &val) {
+    clear();
+    if (count > capacity_) {
+      ::operator delete(data_);
+      capacity_ = count;
+      data_ = static_cast<T *>(::operator new(capacity_ * sizeof(T)));
+    }
+    for (size_t i = 0; i < count; i++) {
+      new (&data_[i]) T(val);
+    }
+    size_ = count;
+  }
+  void assign(std::initializer_list<T> init) {
+    clear();
+    if (init.size() > capacity_) {
+      ::operator delete(data_);
+      capacity_ = init.size();
+      data_ = static_cast<T *>(::operator new(capacity_ * sizeof(T)));
+    }
+    std::uninitialized_copy(init.begin(), init.end(), data_);
+    size_ = init.size();
+  }
+
   auto operator[](size_t ind) -> T & { return data_[ind]; }
   auto operator[](size_t ind) const -> const T & { return data_[ind]; }
   auto at(size_t ind) -> T & {
@@ -123,6 +147,8 @@ public:
     }
     return data_[ind];
   }
+  auto data() -> T * { return data_; }
+  auto data() const -> const T * { return data_; }
 
   /// INFO: clear 清空 m_data 但不清空 m_capacity
   void clear() {
@@ -291,6 +317,18 @@ public:
   auto cbegin() const -> const T * { return data_; }
   auto end() -> T * { return data_ + size_; }
   auto cend() const -> const T * { return data_ + size_; }
+  auto rbegin() -> std::reverse_iterator<T *> {
+    return std::reverse_iterator<T *>(end());
+  }
+  auto crbegin() const -> std::reverse_iterator<const T *> {
+    return std::reverse_iterator<const T *>(cend());
+  }
+  auto rend() -> std::reverse_iterator<T *> {
+    return std::reverse_iterator<T *>(begin());
+  }
+  auto crend() const -> std::reverse_iterator<const T *> {
+    return std::reverse_iterator<const T *>(cbegin());
+  }
 
   [[nodiscard]] auto empty() const noexcept -> bool { return size_ == 0; }
   [[nodiscard]] auto size() const noexcept -> size_t { return size_; }
@@ -313,6 +351,19 @@ public:
       reserve(new_size);
       for (size_t i = size_; i < new_size; i++) {
         new (&data_[i]) T();
+      }
+    } else if (new_size < size_) {
+      for (size_t i = new_size; i < size_; i++) {
+        data_[i].~T();
+      }
+    }
+    size_ = new_size;
+  }
+  void resize(size_t new_size, const T &val) {
+    if (new_size > size_) {
+      reserve(new_size);
+      for (size_t i = size_; i < new_size; i++) {
+        new (&data_[i]) T(val);
       }
     } else if (new_size < size_) {
       for (size_t i = new_size; i < size_; i++) {
