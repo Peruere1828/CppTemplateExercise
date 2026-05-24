@@ -1,7 +1,9 @@
 #ifndef MEMORY_HPP
 #define MEMORY_HPP
 
+#include <atomic>
 #include <cstddef>
+#include <exception>
 #include <type_traits>
 #include <utility>
 
@@ -58,6 +60,55 @@ public:
   template <typename T1, typename T2>
   CompressedPair(T1&& del, T2&& ptr)
       : deleter_(std::forward<T1>(del)), ptr_(std::forward<T2>(ptr)) {}
+};
+
+struct ControlBlockBase {
+  std::atomic<long> shared_count_;
+  std::atomic<long> weak_count_;
+
+  ControlBlockBase() : shared_count_(1), weak_count_(1) {}
+  virtual ~ControlBlockBase() = default;
+
+  virtual void destroyObject() = 0;
+  virtual void destroyControlBlock() = 0;
+
+  void incrementShared() {
+    shared_count_.fetch_add(1, std::memory_order_relaxed);
+  }
+  void decrementShared() {
+    if (shared_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+      destroyObject();
+      decrementWeak();
+    }
+  }
+  void incrementWeak() { weak_count_.fetch_add(1, std::memory_order_relaxed); }
+  void decrementWeak() {
+    if (weak_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+      destroyControlBlock();
+    }
+  }
+};
+
+template <typename T, typename Deleter>
+struct ControlBlockDeleter : ControlBlockBase {
+  CompressedPair<Deleter, T*> cp_;
+  ControlBlockDeleter(T* ptr, Deleter d)
+      : ControlBlockBase(), cp_(std::move(d), ptr) {}
+  void destroyObject() override { cp_.getDeleter()(cp_.getPointer()); }
+  void destroyControlBlock() override { delete this; }
+};
+
+template <typename T, typename Deleter, typename Allocator>
+struct ControlBlockDeleterAllocator : ControlBlockBase {
+  // EBO优化
+  T* ptr_;
+  [[no_unique_address]] Deleter deleter_;
+  [[no_unique_address]] Allocator allocator_;
+  ControlBlockDeleterAllocator(T* ptr, Deleter d, Allocator a)
+      : ControlBlockBase(),
+        ptr_(ptr),
+        deleter_(std::move(d)),
+        allocator_(std::move(a)) {}
 };
 };  // namespace mystd::memory::internal
 
@@ -460,6 +511,17 @@ public:
 
   // Dereference for array version, UniquePtr<T[]>
   auto operator[](std::size_t ind) const -> T& { return get()[ind]; }
+};
+
+template <typename T>
+class SharedPtr {
+public:
+  using ElementType = std::remove_extent_t<T>;
+  // TODO: weak_type
+
+private:
+  T* ptr_;
+  mystd::memory::internal::ControlBlockBase* control_block_;
 };
 
 }  // namespace mystd::memory
