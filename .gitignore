@@ -3,3 +3,6 @@ exes/
 .cache/
 build/
 compile_commands.json
+tmp/
+CLAUDE.md
+.claude/

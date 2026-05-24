@@ -49,8 +49,8 @@ private:
   }
 
 public:
-  explicit BinaryHeap(const Compare &comp = Compare()) : data_(), comp_(comp) {}
-
+  BinaryHeap() = default;
+  explicit BinaryHeap(const Compare &comp) : data_(), comp_(comp) {}
   BinaryHeap(std::initializer_list<T> init, const Compare &comp = Compare())
       : data_(init), comp_(comp) {
     buildHeap();
