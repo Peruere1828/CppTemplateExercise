@@ -73,6 +73,7 @@ public:
       return *this;
     }
     clear();
+    ::operator delete(data_);
     size_ = other.size_;
     capacity_ = other.capacity_;
     data_ = nullptr;
@@ -89,6 +90,7 @@ public:
       return *this;
     }
     clear();
+    ::operator delete(data_);
     size_ = other.size_;
     capacity_ = other.capacity_;
     data_ = other.data_;
@@ -99,6 +101,7 @@ public:
   }
   auto operator=(std::initializer_list<T> init) -> Vector & {
     clear();
+    ::operator delete(data_);
     size_ = init.size();
     capacity_ = init.size();
     data_ = nullptr;
@@ -259,7 +262,8 @@ public:
         data_[i] = std::move(data_[i - 1]);
       }
     }
-    data_[ind] = T(std::forward<Args>(args)...);
+    data_[ind].~T();
+    new (&data_[ind]) T(std::forward<Args>(args)...);
     size_++;
     return data_ + ind;
   }
@@ -364,7 +368,7 @@ public:
       return;
     }
     if (size_ == 0) {
-      clear();
+      ::operator delete(data_);
       data_ = nullptr;
       capacity_ = 0;
       return;
@@ -383,7 +387,7 @@ public:
     if (size_ != ano.size_) {
       return false;
     }
-    if constexpr (std::is_trivial_v<T>) {
+    if constexpr (std::has_unique_object_representations_v<T>) {
       return std::memcmp(data_, ano.data_, size_ * sizeof(T)) == 0;
     } else {
       for (size_t i = 0; i < size_; i++) {
