@@ -60,48 +60,65 @@ private:
   }
 
 public:
-  class Iterator {
+  template <bool IsConst>
+  class IteratorBase {
     friend class LinkList;
 
   private:
-    Node *cur_;
+    using NodePtr = std::conditional_t<IsConst, const Node *, Node *>;
+    NodePtr cur_;
 
   public:
-    explicit Iterator(Node *cur = nullptr) : cur_(cur) {}
-    auto operator*() -> T & { return cur_->val_; }
-    auto operator*() const -> const T & { return cur_->val_; }
-    auto operator->() -> T * { return &(cur_->val_); }
-    auto operator->() const -> const T * { return &(cur_->val_); }
+    explicit IteratorBase(NodePtr cur = nullptr) : cur_(cur) {}
+    // 允许 Iterator -> ConstIterator 的隐式转换
+    template <bool OtherConst,
+              std::enable_if_t<IsConst && !OtherConst, int> = 0>
+    IteratorBase(const IteratorBase<OtherConst> &other)
+        : cur_(other.cur_) {}
+    auto operator*() const -> std::conditional_t<IsConst, const T &, T &> {
+      return cur_->val_;
+    }
+    auto operator->() const
+        -> std::conditional_t<IsConst, const T *, T *> {
+      return &(cur_->val_);
+    }
 
-    auto operator++() -> Iterator & {
+    auto operator++() -> IteratorBase & {
       cur_ = cur_->nxt_;
       return *this;
-    }  // 前置++
-    auto operator++(int) -> Iterator {
-      Iterator temp(cur_);
+    }
+    auto operator++(int) -> IteratorBase {
+      IteratorBase temp(cur_);
       cur_ = cur_->nxt_;
       return temp;
-    }  // 后置++
-    auto operator--() -> Iterator & {
+    }
+    auto operator--() -> IteratorBase & {
       cur_ = cur_->pre_;
       return *this;
-    }  // 前置--
-    auto operator--(int) -> Iterator {
-      Iterator temp(cur_);
+    }
+    auto operator--(int) -> IteratorBase {
+      IteratorBase temp(cur_);
       cur_ = cur_->pre_;
       return temp;
-    }  // 后置--
+    }
 
-    auto operator==(const Iterator &other) const -> bool {
+    auto operator==(const IteratorBase &other) const -> bool {
       return cur_ == other.cur_;
     }
-    auto operator!=(const Iterator &other) const -> bool {
+    auto operator!=(const IteratorBase &other) const -> bool {
       return cur_ != other.cur_;
     }
   };
 
+  using Iterator = IteratorBase<false>;
+  using ConstIterator = IteratorBase<true>;
+
   auto begin() -> Iterator { return Iterator(head_); }
   auto end() -> Iterator { return Iterator(); }
+  auto begin() const -> ConstIterator { return ConstIterator(head_); }
+  auto end() const -> ConstIterator { return ConstIterator(); }
+  auto cbegin() const -> ConstIterator { return ConstIterator(head_); }
+  auto cend() const -> ConstIterator { return ConstIterator(); }
 
   [[nodiscard]] auto empty() const noexcept -> bool { return len_ == 0; }
   [[nodiscard]] auto size() const noexcept -> size_t { return len_; }

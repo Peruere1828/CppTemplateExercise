@@ -169,6 +169,7 @@ public:
     }
     new (&data_[size_++]) T(std::forward<U>(val));
   }
+  /// INFO: placement new 在 size_ 位置构造，后置递增返回该位置的引用
   template <typename... Args>
   auto emplaceBack(Args &&...args) -> T & {
     if (size_ == capacity_) {
@@ -184,7 +185,7 @@ public:
   /// 2. 对于插入多个元素，统一新地址 placement new，旧地址析构
   template <typename U>
   auto insert(T *loc_ptr, U &&val) -> T * {
-    size_t ind = loc_ptr - data_;
+    auto ind = static_cast<size_t>(loc_ptr - data_);
     if (ind > size_) {
       throw std::out_of_range("Vector::insert index out of range");
     }
@@ -204,7 +205,7 @@ public:
   }
   template <typename U>
   auto insert(T *loc_ptr, size_t count, U &&val) -> T * {
-    size_t ind = loc_ptr - data_;
+    auto ind = static_cast<size_t>(loc_ptr - data_);
     if (ind > size_) {
       throw std::out_of_range("Vector::insert index out of range");
     }
@@ -226,7 +227,7 @@ public:
     return data_ + ind;
   }
   auto insert(T *loc_ptr, std::initializer_list<T> init) -> T * {
-    size_t ind = loc_ptr - data_;
+    auto ind = static_cast<size_t>(loc_ptr - data_);
     if (ind > size_) {
       throw std::out_of_range("Vector::insert index out of range");
     }
@@ -248,7 +249,7 @@ public:
   }
   template <typename... Args>
   auto emplace(T *loc_ptr, Args &&...args) -> T * {
-    size_t ind = loc_ptr - data_;
+    auto ind = static_cast<size_t>(loc_ptr - data_);
     if (ind > size_) {
       throw std::out_of_range("Vector::emplace index out of range");
     }
@@ -268,7 +269,7 @@ public:
     return data_ + ind;
   }
   auto erase(T *loc_ptr) -> T * {
-    size_t ind = loc_ptr - data_;
+    auto ind = static_cast<size_t>(loc_ptr - data_);
     if (ind >= size_) {
       throw std::out_of_range("Vector::erase index out of range");
     }
@@ -316,10 +317,12 @@ public:
     }
     return data_[size_ - 1];
   }
-  auto begin() -> T * { return data_; }
-  auto cbegin() const -> const T * { return data_; }
-  auto end() -> T * { return data_ + size_; }
-  auto cend() const -> const T * { return data_ + size_; }
+  auto begin() noexcept -> T * { return data_; }
+  auto begin() const noexcept -> const T * { return data_; }
+  auto cbegin() const noexcept -> const T * { return data_; }
+  auto end() noexcept -> T * { return data_ + size_; }
+  auto end() const noexcept -> const T * { return data_ + size_; }
+  auto cend() const noexcept -> const T * { return data_ + size_; }
 
   [[nodiscard]] auto empty() const noexcept -> bool { return size_ == 0; }
   [[nodiscard]] auto size() const noexcept -> size_t { return size_; }

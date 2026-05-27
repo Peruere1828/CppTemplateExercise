@@ -59,7 +59,7 @@ public:
   CompressedPair(T1&& del, T2&& ptr)
       : deleter_(std::forward<T1>(del)), ptr_(std::forward<T2>(ptr)) {}
 };
-};  // namespace mystd::memory::internal
+}  // namespace mystd::memory::internal
 
 template <typename T, typename Deleter = DefaultDeleter<T>>
 class UniquePtr {
