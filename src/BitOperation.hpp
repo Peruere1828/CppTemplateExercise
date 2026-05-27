@@ -12,6 +12,9 @@ constexpr auto bitCeil(ull n) noexcept -> ull {
   return x;
 }
 constexpr auto countrZero(ull n) noexcept -> ull {
+  if (n == 0) {
+    return 8 * sizeof(ull);
+  }
   ull x = 0;
   while ((n & (1ULL << x)) == 0U) {
     x++;

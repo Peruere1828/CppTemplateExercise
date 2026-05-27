@@ -32,24 +32,24 @@ using namespace mystd::segment_tree;
 TEST(SegmentTree, Default) {
   RandomGenerator gen;
   std::vector<node> arr;
-  const int arr_len = 10000;
-  const int query_times = 100000;
+  const size_t arr_len = 10000;
+  const size_t query_times = 100000;
   const int num_range = 100000;
-  for (int i = 0; i < arr_len; i++) {
+  for (size_t i = 0; i < arr_len; i++) {
     arr.push_back(node{gen.uniform_int(0, num_range), 1});
   }
   SegmentTree<node, op, e, func, mapping, composition, id> seg(arr);
   std::vector<node> ref = arr;
-  for (int i = 0; i < query_times; i++) {
+  for (size_t i = 0; i < query_times; i++) {
     int opt = gen.uniform_int(0, 4);
-    int l = gen.uniform_int(0, arr_len - 1);
-    int r = gen.uniform_int(0, arr_len - 1);
+    size_t l = static_cast<size_t>(gen.uniform_int(0, static_cast<int>(arr_len) - 1));
+    size_t r = static_cast<size_t>(gen.uniform_int(0, static_cast<int>(arr_len) - 1));
     if (l > r) std::swap(l, r);
     switch (opt) {
       case 0: {
         func f{gen.uniform_int(0, num_range), gen.uniform_int(0, num_range)};
         seg.apply(l, r, f);
-        for (int j = l; j <= r; j++) {
+        for (size_t j = l; j <= r; j++) {
           ref[j].a = (ref[j].a * f.a % mod + f.b) % mod;
         }
         break;
@@ -63,15 +63,17 @@ TEST(SegmentTree, Default) {
       case 2: {
         node ans1 = seg.query(l, r);
         node ans2 = e();
-        for (int j = l; j <= r; j++) {
+        for (size_t j = l; j <= r; j++) {
           ans2 = op(ans2, ref[j]);
         }
         EXPECT_EQ(ans2.a, ans1.a);
+        break;
       }
       case 3: {
         node ans1 = seg.query(l);
         node ans2 = ref[l];
         EXPECT_EQ(ans2.a, ans1.a);
+        break;
       }
       case 4: {
         node val{gen.uniform_int(0, num_range), 1};

@@ -143,7 +143,7 @@ TEST(BinaryHeap, LargeData) {
   }
   std::sort(ref.begin(), ref.end(), std::greater<int>());
   EXPECT_EQ(N, static_cast<int>(max_heap.size()));
-  for (int i = 0; i < N; i++) {
+  for (size_t i = 0; i < static_cast<size_t>(N); i++) {
     EXPECT_EQ(ref[i], max_heap.top());
     max_heap.pop();
   }

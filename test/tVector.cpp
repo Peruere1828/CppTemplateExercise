@@ -103,12 +103,15 @@ TEST(Vector, SelfCopyAssignment) {
   full_compare(v, ref);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
 TEST(Vector, SelfMoveAssignment) {
   Vector<int> v{1, 2, 3};
   v = std::move(v);
   std::vector<int> ref{1, 2, 3};
   full_compare(v, ref);
 }
+#pragma GCC diagnostic pop
 
 TEST(Vector, Data) {
   Vector<int> v{1, 2, 3};
@@ -472,21 +475,21 @@ TEST(Vector, RandomInt) {
       size_t pos = gen.uniform_int(0ul, ref.size());
       int x = gen.uniform_int(0, MAX_VAL);
       v.insert(v.begin() + pos, x);
-      ref.insert(ref.begin() + pos, x);
+      ref.insert(ref.begin() + static_cast<ptrdiff_t>(pos), x);
     } else if (op == 3) {
       if (ref.empty()) {
         EXPECT_THROW(v.erase(v.begin()), std::out_of_range);
       } else {
         size_t pos = gen.uniform_int(0ul, ref.size() - 1);
         v.erase(v.begin() + pos);
-        ref.erase(ref.begin() + pos);
+        ref.erase(ref.begin() + static_cast<ptrdiff_t>(pos));
       }
     } else if (op == 4) {
-      size_t new_size = gen.uniform_int(0, 200);
+      auto new_size = static_cast<size_t>(gen.uniform_int(0, 200));
       v.resize(new_size);
       ref.resize(new_size);
     } else if (op == 5) {
-      size_t cap = gen.uniform_int(0, 500);
+      auto cap = static_cast<size_t>(gen.uniform_int(0, 500));
       v.reserve(cap);
       ref.reserve(cap);
     } else if (op == 6) {
@@ -542,7 +545,7 @@ TEST(Vector, EmplaceNonTrivial) {
         ref.pop_back();
       }
     } else if (op == 3) {
-      size_t new_size = gen.uniform_int(0, 100);
+      auto new_size = static_cast<size_t>(gen.uniform_int(0, 100));
       v.resize(new_size);
       ref.resize(new_size);
     } else {

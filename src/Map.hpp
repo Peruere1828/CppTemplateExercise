@@ -107,7 +107,9 @@ public:
     auto tmp = tree_.equalRange(key);
     return {ConstIterator(tmp.first), ConstIterator(tmp.second)};
   }
-  auto count(const Key& key) const -> size_t { return find(key) != end(); }
+  auto count(const Key& key) const -> size_t {
+    return find(key) != end() ? 1 : 0;
+  }
   // clang-format on
 
   void clear() { tree_.clear(); }

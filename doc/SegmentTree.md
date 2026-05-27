@@ -29,13 +29,13 @@ class SegmentTree;
 
 | 方法                                     | 功能                                          | 时间复杂度  |
 | ---------------------------------------- | --------------------------------------------- | ----------- |
-| `SegmentTree(int n)`                     | 构造一个长度为 $n$ 的线段树（初始值为 `e()`） | $O(n)$      |
+| `SegmentTree(size_t n)`                  | 构造一个长度为 $n$ 的线段树（初始值为 `e()`） | $O(n)$      |
 | `SegmentTree(const std::vector<T> &arr)` | 从数组初始化线段树                            | $O(n)$      |
-| `void assign(int p, T val)`              | 单点赋值（替换原值）                          | $O(\log n)$ |
-| `void apply(int p, F f)`                 | 单点应用操作 `f`                              | $O(\log n)$ |
-| `void apply(int L, int R, F f)`          | 区间 $[L, R]$ 应用操作 `f`                    | $O(\log n)$ |
-| `T query(int p)`                         | 查询单点值                                    | $O(\log n)$ |
-| `T query(int L, int R)`                  | 查询区间 $[L, R]$ 的和                        | $O(\log n)$ |
+| `void assign(size_t p, T val)`           | 单点赋值（替换原值）                          | $O(\log n)$ |
+| `void apply(size_t p, F f)`              | 单点应用操作 `f`                              | $O(\log n)$ |
+| `void apply(size_t L, size_t R, F f)`    | 区间 $[L, R]$ 应用操作 `f`                    | $O(\log n)$ |
+| `T query(size_t p)`                      | 查询单点值                                    | $O(\log n)$ |
+| `T query(size_t L, size_t R)`            | 查询区间 $[L, R]$ 的和                        | $O(\log n)$ |
 
 ## 行为说明
 

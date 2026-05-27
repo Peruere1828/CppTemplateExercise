@@ -63,12 +63,15 @@ TEST(Stack, SelfCopyAssignment) {
   EXPECT_EQ(s.top(), 3);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
 TEST(Stack, SelfMoveAssignment) {
   Stack<int> s{1, 2, 3};
   s = std::move(s);
   EXPECT_EQ(s.size(), 3u);
   EXPECT_EQ(s.top(), 3);
 }
+#pragma GCC diagnostic pop
 
 TEST(Stack, TopMutable) {
   Stack<int> s{1, 2, 3};
@@ -105,7 +108,7 @@ TEST(Stack, PushRvalue) {
 
 TEST(Stack, Emplace) {
   Stack<std::string> s;
-  s.emplace(3, 'a');
+  s.emplace(static_cast<size_t>(3), 'a');
   EXPECT_EQ(s.top(), "aaa");
 }
 
