@@ -27,18 +27,18 @@ class FenwickTree;
 
 ## 接口说明
 
-| 方法                                     | 功能                                           | 时间复杂度  |
-| ---------------------------------------- | ---------------------------------------------- | ----------- |
-| `FenwickTree(int n)`                     | 构造长度为 $n$ 的树（初值 `e()`）              | $O(n)$      |
-| `FenwickTree(const std::vector<T> &arr)` | 从数组初始化树                                 | $O(n)$      |
-| `void apply(int p, T val)`               | 单点累加 `val`（`tree[p] = op(tree[p], val)`） | $O(\log n)$ |
-| `T query(int p)`                         | 查询前缀和 `[0, p]`                            | $O(\log n)$ |
-| `T query(int L, int R)`                  | 查询区间 `[L, R]` 的和                         | $O(\log n)$ |
+| 方法                                     | 功能                                                    | 时间复杂度  |
+| ---------------------------------------- | ------------------------------------------------------- | ----------- |
+| `FenwickTree(size_t n)`                  | 构造长度为 $n$ 的树（初值 `e()`）                       | $O(n)$      |
+| `FenwickTree(const std::vector<T> &arr)` | 从数组初始化树                                          | $O(n)$      |
+| `void apply(size_t p, T val)`            | 单点累加 `val`（`tree[p] = op(tree[p], val)`）          | $O(\log n)$ |
+| `T query(ptrdiff_t p)`                   | 查询前缀和 `[0, p]`，`p = -1` 时返回 `e()`              | $O(\log n)$ |
+| `T query(size_t L, size_t R)`            | 查询区间 `[L, R]` 的和                                  | $O(\log n)$ |
 
 ## 行为说明
 
 - 所有下标**从 $0$ 开始**，内部实现平移到从 $1$ 开始存储
-- 前缀和 `query(p)` 返回 `op(a[0], a[1], ..., a[p])`，当 $p < 0$ 时返回 `e()`
+- 前缀和 `query(ptrdiff_t p)` 返回 `op(a[0], a[1], ..., a[p])`，当 $p = -1$ 时返回 `e()`
 - 区间查询 `query(L, R)` = `opInv(query(R), query(L-1))`
 - `apply(p, val)` 执行 `a[p] = op(a[p], val)`，然后向上更新所有受影响的前缀和节点
 - 所有越界访问抛出 `std::out_of_range`

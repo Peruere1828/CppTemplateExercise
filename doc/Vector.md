@@ -21,8 +21,8 @@
 | front()                  | `v.front()`                     | `v.front()`                             |
 | back()                   | `v.back()`                      | `v.back()`                              |
 | data()                   | `v.data()`                      | `v.data()`                              |
-| begin / cbegin           | `v.begin()` → `T*`              | `v.begin()` → 实现定义迭代器            |
-| end / cend               | `v.end()` → `T*`                | `v.end()` → 实现定义迭代器              |
+| begin / cbegin           | `v.begin()` → `T*` / `const T*` | `v.begin()` → 实现定义迭代器            |
+| end / cend               | `v.end()` → `T*` / `const T*`  | `v.end()` → 实现定义迭代器              |
 | pushBack                 | `v.pushBack(val)` (万能引用)    | `push_back(val)` + `push_back(T&&)`     |
 | emplaceBack              | `v.emplaceBack(args...)`        | `emplace_back(args...)`                 |
 | insert(单个值)           | `v.insert(pos, val)` (万能引用) | `insert(pos, val)` + `insert(pos, T&&)` |
